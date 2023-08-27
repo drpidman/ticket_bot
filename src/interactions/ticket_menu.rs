@@ -3,8 +3,8 @@ use serenity::{
     json,
     model::{
         prelude::{
-            message_component::MessageComponentInteraction, Channel, ChannelCategory, ChannelId,
-            ChannelType, Interaction, PermissionOverwrite,
+            message_component::MessageComponentInteraction, ChannelId,
+            ChannelType, Interaction, InteractionResponseType, PermissionOverwrite,
             PermissionOverwriteType,
         },
         Permissions,
@@ -15,14 +15,54 @@ use serenity::{
 
 use crate::config::{TICKET_CREATION_CATEGORY, TICKET_LOG_CHANNEL};
 
-pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction, i: &Interaction) {
-    let logchannel = ChannelId::from(TICKET_LOG_CHANNEL.parse::<u64>().unwrap());
-    let category_tickets = ChannelId::from(TICKET_CREATION_CATEGORY.parse::<u64>().unwrap());
+async fn check_channel(
+    ctx: &Context,
+    component: &MessageComponentInteraction,
+    selected_choice: &str,
+) -> bool {
+    let channels = component.guild_id.unwrap().channels(&ctx).await.unwrap();
 
-    let mut embed_ticket = CreateEmbed::default();
+    let channel = channels.iter().find(|ch| {
+        ch.1.name == format!("{}-{}", selected_choice, component.user.id)
+            || ch.1.name.contains(&format!("{}", component.user.id))
+    });
 
-    let mut channel = CreateChannel::default();
-    channel.kind(ChannelType::Text);
+    if channel.is_some() {
+        component
+            .create_interaction_response(&ctx, |res| {
+                res.kind(InteractionResponseType::ChannelMessageWithSource)
+                    .interaction_response_data(|msg| {
+                        msg.content("Você já abriu um ticket anteriormente")
+                            .ephemeral(true)
+                    })
+            })
+            .await
+            .unwrap();
+        return true;
+    }
+
+    return false;
+}
+
+async fn response_to_user(ctx: &Context, component: &MessageComponentInteraction) {
+    component
+        .create_interaction_response(&ctx, |res| {
+            res.kind(InteractionResponseType::ChannelMessageWithSource)
+                .interaction_response_data(|message| {
+                    message.content("Ticket aberto com sucesso").ephemeral(true)
+                })
+        })
+        .await
+        .unwrap();
+}
+
+pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction, _i: &Interaction) {
+    let tickets_channel = ChannelId::from(TICKET_LOG_CHANNEL.parse::<u64>().unwrap());
+    let tickets_category = ChannelId::from(TICKET_CREATION_CATEGORY.parse::<u64>().unwrap());
+
+    let mut ticket_embed = CreateEmbed::default();
+    let mut ticket_channel = CreateChannel::default();
+    ticket_channel.kind(ChannelType::Text);
 
     let everyone_role = ctx
         .cache
@@ -33,8 +73,6 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
         .unwrap()
         .0
         .to_owned();
-
-    println!("everyonerole {:?}", everyone_role);
 
     let channel_permissions = vec![
         // ! PARA O USUARIO
@@ -52,41 +90,51 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
     ];
 
     let choices: Vec<String> = vec![
-        "support".to_string(),
-        "question".to_string(),
-        "problem".to_string(),
+        "suporte".to_string(),
+        "duvida".to_string(),
+        "problema".to_string(),
     ];
 
-    let selected_choice = choices
+    let choice = choices
         .iter()
-        .find(|ch| ch.to_string() == component.data.values[0].to_string())
+        .find(|choice| choice.to_string() == component.data.values[0].to_string())
         .unwrap()
         .to_string();
 
-    match selected_choice.as_str() {
-        "support" => {
-            embed_ticket.title("Requisição - Suporte".to_string());
-            embed_ticket.color(Color::DARK_GREEN);
+    if check_channel(&ctx, &component, &choice).await {
+        return;
+    }
 
-            channel.name(format!("suporte-{}", component.user.id));
-            channel.permissions(channel_permissions);
-            channel.category(category_tickets);
+    match choice.as_str() {
+        "suporte" => {
+            ticket_embed.title("Requisição - Suporte".to_string());
+            ticket_embed.color(Color::DARK_GREEN);
+
+            ticket_channel.name(format!("suporte-{}", component.user.id));
+            ticket_channel.permissions(channel_permissions);
+            ticket_channel.category(tickets_category);
+
+            response_to_user(&ctx, &component).await;
         }
-        "question" => {
-            embed_ticket.title("Requisição - Duvida".to_string());
-            embed_ticket.color(Color::BLUE);
+        "duvida" => {
+            ticket_embed.title("Requisição - Duvida".to_string());
+            ticket_embed.color(Color::BLUE);
 
-            channel.name(format!("duvida-{}", component.user.id));
-            channel.permissions(channel_permissions);
-            channel.category(category_tickets);
+            ticket_channel.name(format!("duvida-{}", component.user.id));
+            ticket_channel.permissions(channel_permissions);
+            ticket_channel.category(tickets_category);
+
+            response_to_user(&ctx, &component).await;
         }
-        "problem" => {
-            embed_ticket.title("Requisição - Problema".to_string());
-            embed_ticket.color(Color::RED);
+        "problema" => {
+            ticket_embed.title("Requisição - Problema".to_string());
+            ticket_embed.color(Color::RED);
 
-            channel.name(format!("problema-{}", component.user.id));
-            channel.permissions(channel_permissions);
-            channel.category(category_tickets);
+            ticket_channel.name(format!("problema-{}", component.user.id));
+            ticket_channel.permissions(channel_permissions);
+            ticket_channel.category(tickets_category);
+
+            response_to_user(&ctx, &component).await;
         }
         _ => (),
     };
@@ -95,15 +143,15 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
         .as_ref()
         .create_channel(
             component.guild_id.unwrap().as_u64().to_owned(),
-            &json::hashmap_to_json_map(channel.0),
+            &json::hashmap_to_json_map(ticket_channel.0),
             Some("Ticket de suporte"),
         )
         .await
         .unwrap();
 
-    logchannel
-        .send_message(&ctx, |msg| msg.set_embed(embed_ticket))
+    tickets_channel
+        .send_message(&ctx, |msg| msg.set_embed(ticket_embed))
         .await
         .unwrap();
-    println!("Interaction menu {:?}", selected_choice);
+    println!("Interaction menu {:?}", choice);
 }

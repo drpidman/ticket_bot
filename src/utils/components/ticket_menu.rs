@@ -8,17 +8,17 @@ pub fn ticket_menu() -> CreateSelectMenu {
             .create_option(|opt| {
                 opt.label("Suporte")
                     .description("Contato rapido com a equipe de suporte")
-                    .value("support")
+                    .value("suporte")
             })
             .create_option(|opt| {
                 opt.label("Duvida")
                     .description("Tire alguma duvida com a equipe de suporte")
-                    .value("question")
+                    .value("duvida")
             })
             .create_option(|opt| {
                 opt.label("Problema")
                     .description("Relatar um problema para a equipe de suporte")
-                    .value("problem")
+                    .value("problema")
             })
     });
 
