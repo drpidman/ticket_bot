@@ -6,6 +6,7 @@ use crate::events::Handler;
 
 mod events;
 mod config;
+mod utils;
 mod commands;
 mod interactions;
 

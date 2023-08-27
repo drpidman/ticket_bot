@@ -4,7 +4,7 @@ use serenity::prelude::{EventHandler, Context};
 use serenity::async_trait;
 
 use crate::commands::moderator::setup;
-use crate::interactions::menu_select::menu_run;
+use crate::interactions::ticket_menu::ticket_menu;
 
 pub struct Handler;
 
@@ -27,7 +27,7 @@ impl EventHandler for Handler {
         if let Interaction::MessageComponent(component) = &interaction {
             if let ComponentType::SelectMenu = component.data.component_type {
                 match component.data.custom_id.as_str() {
-                    "menu_select" => menu_run(&ctx, &component, &interaction).await,
+                    "ticket_menu" => ticket_menu(&ctx, &component, &interaction).await,
                     _=> ()
                 }
             }
