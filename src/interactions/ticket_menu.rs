@@ -3,9 +3,8 @@ use serenity::{
     json,
     model::{
         prelude::{
-            message_component::MessageComponentInteraction, ChannelId,
-            ChannelType, Interaction, InteractionResponseType, PermissionOverwrite,
-            PermissionOverwriteType,
+            message_component::MessageComponentInteraction, ChannelId, ChannelType, Interaction,
+            InteractionResponseType, PermissionOverwrite, PermissionOverwriteType,
         },
         Permissions,
     },
@@ -13,7 +12,10 @@ use serenity::{
     utils::Color,
 };
 
-use crate::{config::{TICKET_CREATION_CATEGORY, TICKET_LOG_CHANNEL}, utils::components::ticket::is_ticket};
+use crate::{
+    config::{TICKET_CREATION_CATEGORY, TICKET_LOG_CHANNEL},
+    utils::components::ticket::is_ticket,
+};
 
 async fn response_to_user(ctx: &Context, component: &MessageComponentInteraction) {
     component

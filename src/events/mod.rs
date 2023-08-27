@@ -1,7 +1,7 @@
-use serenity::model::prelude::component::ComponentType;
-use serenity::model::prelude::{Ready, Interaction};
-use serenity::prelude::{EventHandler, Context};
 use serenity::async_trait;
+use serenity::model::prelude::component::ComponentType;
+use serenity::model::prelude::{Interaction, Ready};
+use serenity::prelude::{Context, EventHandler};
 
 use crate::commands::moderator::setup;
 use crate::interactions::ticket_menu::ticket_menu;
@@ -20,7 +20,7 @@ impl EventHandler for Handler {
         if let Interaction::ApplicationCommand(command) = &interaction {
             match command.data.name.as_str() {
                 "setup" => setup::command_run(&ctx, command, &interaction).await,
-                _=> ()
+                _ => (),
             };
         }
 
@@ -28,7 +28,7 @@ impl EventHandler for Handler {
             if let ComponentType::SelectMenu = component.data.component_type {
                 match component.data.custom_id.as_str() {
                     "ticket_menu" => ticket_menu(&ctx, component, &interaction).await,
-                    _=> ()
+                    _ => (),
                 }
             }
         }

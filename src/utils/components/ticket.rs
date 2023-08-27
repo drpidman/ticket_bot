@@ -1,6 +1,14 @@
-use serenity::{builder::CreateSelectMenu, prelude::Context, model::prelude::{message_component::MessageComponentInteraction, InteractionResponseType}};
+use serenity::{
+    builder::CreateSelectMenu,
+    model::prelude::{message_component::MessageComponentInteraction, InteractionResponseType},
+    prelude::Context,
+};
 
-pub async fn is_ticket(ctx: &Context, component: &MessageComponentInteraction, selected_choice: &str) -> bool {
+pub async fn is_ticket(
+    ctx: &Context,
+    component: &MessageComponentInteraction,
+    selected_choice: &str,
+) -> bool {
     let channels = component.guild_id.unwrap().channels(&ctx).await.unwrap();
 
     let channel = channels.iter().find(|ch| {
@@ -19,7 +27,7 @@ pub async fn is_ticket(ctx: &Context, component: &MessageComponentInteraction, s
             })
             .await
             .unwrap();
-        return true
+        return true;
     }
 
     false

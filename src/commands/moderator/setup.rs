@@ -54,9 +54,7 @@ pub async fn command_run(ctx: &Context, command: &ApplicationCommandInteraction,
                 })
             })
             .components(|component| {
-                component.create_action_row(|action| {
-                    action.add_select_menu(ticket_menu())
-                })
+                component.create_action_row(|action| action.add_select_menu(ticket_menu()))
             })
         })
         .await
