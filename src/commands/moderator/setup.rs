@@ -2,14 +2,12 @@ use serenity::{
     http::Http,
     model::{
         prelude::{
-            application_command::{
-                ApplicationCommandInteraction, CommandDataOptionValue,
-            },
+            application_command::{ApplicationCommandInteraction, CommandDataOptionValue},
             command::{Command, CommandOptionType},
             ChannelId, ChannelType, Interaction,
         },
         Permissions,
-    }, 
+    },
     prelude::Context,
 };
 
@@ -18,8 +16,9 @@ pub async fn command_run(ctx: &Context, command: &ApplicationCommandInteraction,
     let option_channel = options.get(0).unwrap().resolved.as_ref().unwrap();
     let option_desc = options.get(1).unwrap().resolved.as_ref().unwrap();
     let option_banner = match options.get(2) {
-        Some(val) => {
-            if let CommandDataOptionValue::Attachment(file) = &val.resolved.as_ref().unwrap() {
+        Some(attachment) => {
+            if let CommandDataOptionValue::Attachment(file) = &attachment.resolved.as_ref().unwrap()
+            {
                 Some(file.clone())
             } else {
                 None
@@ -39,6 +38,50 @@ pub async fn command_run(ctx: &Context, command: &ApplicationCommandInteraction,
     } else {
         "Empty description"
     };
+
+    let message = channel
+        .send_message(&ctx.http, |msg| {
+            msg.add_embed(|embed|
+                embed.title("Ticket")
+                .description(description)
+                .image({
+                    if option_banner.is_some() {
+                        option_banner.unwrap().url
+                    } else {
+                        String::from("")
+                    }
+                })
+            )
+            .components(|component| {
+                component.create_action_row(|action| {
+                    action.create_select_menu(|menu|{
+                        menu.custom_id("menu_select")
+                        .options(|options|
+                            options.create_option(|opt| 
+                                opt.label("Suporte")
+                                .description("Contato rapido com a equipe de suporte")
+                                .value("support")
+                                .default_selection(true)
+                            )
+                            .create_option(|opt|
+                                opt.label("Duvida")
+                                .description("Tire alguma duvida com a equipe de suporte")
+                                .value("question")
+                            )
+                            .create_option(|opt|
+                                opt.label("Problema")
+                                .description("Relatar um problema para a equipe de suporte")
+                                .value("problem")
+                            )
+                        )
+                    })
+                })
+            })
+        })
+        .await
+        .unwrap();
+
+    
 }
 
 pub async fn register(http: &Http) {

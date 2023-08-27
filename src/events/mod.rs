@@ -1,4 +1,4 @@
-use serenity::model::prelude::{Ready, interaction, Interaction};
+use serenity::model::prelude::{Ready, Interaction};
 use serenity::prelude::{EventHandler, Context};
 use serenity::async_trait;
 

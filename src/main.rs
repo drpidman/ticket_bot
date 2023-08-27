@@ -1,13 +1,18 @@
 use serenity::prelude::*;
+use std::env;
+use dotenv::dotenv;
 
 use crate::events::Handler;
 
 mod events;
+mod config;
 mod commands;
 
 #[tokio::main]
 async fn main() {
-    let mut client = Client::builder("", 
+    dotenv().ok();
+
+    let mut client = Client::builder(env::var("BOT_TOKEN").expect("Token não foi providenciado"), 
         GatewayIntents::non_privileged() |
                 GatewayIntents::GUILD_MESSAGES
     )

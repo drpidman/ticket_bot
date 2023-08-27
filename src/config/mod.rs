@@ -1,0 +1,1 @@
+pub static TICKET_LOG_CHANNEL: &str = "";
