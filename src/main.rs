@@ -7,6 +7,7 @@ use crate::events::Handler;
 mod events;
 mod config;
 mod commands;
+mod interactions;
 
 #[tokio::main]
 async fn main() {

@@ -1,1 +1,1 @@
-pub static TICKET_LOG_CHANNEL: &str = "";
+pub static TICKET_LOG_CHANNEL: &str = "1115480211274858649";

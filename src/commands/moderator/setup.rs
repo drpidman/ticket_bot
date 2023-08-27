@@ -61,7 +61,6 @@ pub async fn command_run(ctx: &Context, command: &ApplicationCommandInteraction,
                                 opt.label("Suporte")
                                 .description("Contato rapido com a equipe de suporte")
                                 .value("support")
-                                .default_selection(true)
                             )
                             .create_option(|opt|
                                 opt.label("Duvida")
