@@ -19,7 +19,7 @@ impl EventHandler for Handler {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = &interaction {
             match command.data.name.as_str() {
-                "setup" => setup::command_run(&ctx, &command, &interaction).await,
+                "setup" => setup::command_run(&ctx, command, &interaction).await,
                 _=> ()
             };
         }
@@ -27,7 +27,7 @@ impl EventHandler for Handler {
         if let Interaction::MessageComponent(component) = &interaction {
             if let ComponentType::SelectMenu = component.data.component_type {
                 match component.data.custom_id.as_str() {
-                    "ticket_menu" => ticket_menu(&ctx, &component, &interaction).await,
+                    "ticket_menu" => ticket_menu(&ctx, component, &interaction).await,
                     _=> ()
                 }
             }

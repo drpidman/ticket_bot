@@ -13,36 +13,7 @@ use serenity::{
     utils::Color,
 };
 
-use crate::config::{TICKET_CREATION_CATEGORY, TICKET_LOG_CHANNEL};
-
-async fn check_channel(
-    ctx: &Context,
-    component: &MessageComponentInteraction,
-    selected_choice: &str,
-) -> bool {
-    let channels = component.guild_id.unwrap().channels(&ctx).await.unwrap();
-
-    let channel = channels.iter().find(|ch| {
-        ch.1.name == format!("{}-{}", selected_choice, component.user.id)
-            || ch.1.name.contains(&format!("{}", component.user.id))
-    });
-
-    if channel.is_some() {
-        component
-            .create_interaction_response(&ctx, |res| {
-                res.kind(InteractionResponseType::ChannelMessageWithSource)
-                    .interaction_response_data(|msg| {
-                        msg.content("Você já abriu um ticket anteriormente")
-                            .ephemeral(true)
-                    })
-            })
-            .await
-            .unwrap();
-        return true;
-    }
-
-    return false;
-}
+use crate::{config::{TICKET_CREATION_CATEGORY, TICKET_LOG_CHANNEL}, utils::components::ticket::is_ticket};
 
 async fn response_to_user(ctx: &Context, component: &MessageComponentInteraction) {
     component
@@ -95,13 +66,13 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
         "problema".to_string(),
     ];
 
-    let choice = choices
+    let choice = &choices
         .iter()
-        .find(|choice| choice.to_string() == component.data.values[0].to_string())
+        .find(|choice| choice.to_string() == component.data.values[0])
         .unwrap()
         .to_string();
 
-    if check_channel(&ctx, &component, &choice).await {
+    if is_ticket(ctx, component, choice).await {
         return;
     }
 
@@ -114,7 +85,7 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
             ticket_channel.permissions(channel_permissions);
             ticket_channel.category(tickets_category);
 
-            response_to_user(&ctx, &component).await;
+            response_to_user(ctx, component).await;
         }
         "duvida" => {
             ticket_embed.title("Requisição - Duvida".to_string());
@@ -124,7 +95,7 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
             ticket_channel.permissions(channel_permissions);
             ticket_channel.category(tickets_category);
 
-            response_to_user(&ctx, &component).await;
+            response_to_user(ctx, component).await;
         }
         "problema" => {
             ticket_embed.title("Requisição - Problema".to_string());
@@ -134,7 +105,7 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
             ticket_channel.permissions(channel_permissions);
             ticket_channel.category(tickets_category);
 
-            response_to_user(&ctx, &component).await;
+            response_to_user(ctx, component).await;
         }
         _ => (),
     };
@@ -153,5 +124,4 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
         .send_message(&ctx, |msg| msg.set_embed(ticket_embed))
         .await
         .unwrap();
-    println!("Interaction menu {:?}", choice);
 }

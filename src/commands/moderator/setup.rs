@@ -11,9 +11,9 @@ use serenity::{
     prelude::Context,
 };
 
-use crate::utils::components::ticket_menu::ticket_menu;
+use crate::utils::components::ticket::ticket_menu;
 
-pub async fn command_run(ctx: &Context, command: &ApplicationCommandInteraction, i: &Interaction) {
+pub async fn command_run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &Interaction) {
     let options = &command.data.options;
     let option_channel = options.get(0).unwrap().resolved.as_ref().unwrap();
     let option_desc = options.get(1).unwrap().resolved.as_ref().unwrap();
@@ -42,12 +42,12 @@ pub async fn command_run(ctx: &Context, command: &ApplicationCommandInteraction,
         "Empty description"
     };
 
-    let message = channel
+    let _message = channel
         .send_message(&ctx.http, |msg| {
             msg.add_embed(|embed| {
                 embed.title("Ticket").description(description).image({
-                    if option_banner.is_some() {
-                        option_banner.unwrap().url
+                    if let Some(banner) = option_banner {
+                        banner.url
                     } else {
                         "".to_string()
                     }
