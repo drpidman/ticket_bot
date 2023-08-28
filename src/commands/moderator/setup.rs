@@ -21,10 +21,9 @@ pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &In
     let option_channel = options.get(0).unwrap().resolved.as_ref().unwrap();
     let option_desc = options.get(1).unwrap().resolved.as_ref().unwrap();
 
-    if TicketConfig::get(command.guild_id.unwrap().0)
-        .unwrap()
-        .is_some()
-    {
+    let ticket = TicketConfig::get(command.guild_id.unwrap().0).unwrap();
+
+    if ticket.is_some() {
         command
             .create_interaction_response(&ctx, |res| {
                 res.kind(InteractionResponseType::ChannelMessageWithSource)

@@ -7,7 +7,8 @@ edition = "2021"
 
 [dependencies]
 dotenv = "0.15.0"
-rusqlite = "0.29.0"
+rand = "0.8.5"
+rusqlite = { version = "0.29.0", features = ["bundled"] }
 serde = "1.0.188"
 serenity = { version = "0.11.6", features = [
     "builder",

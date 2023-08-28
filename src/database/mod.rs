@@ -11,4 +11,12 @@ pub fn init() {
         (),
     )
     .unwrap();
+
+    db.execute(
+        "CREATE TABLE IF NOT EXISTS ticket_history (
+        ticket_id INTEGER, guild_id INTEGER, user_id INTEGER, ticket_status TEXT
+    )",
+        (),
+    )
+    .unwrap();
 }

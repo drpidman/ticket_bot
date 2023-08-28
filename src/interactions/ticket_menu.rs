@@ -14,7 +14,7 @@ use serenity::{
 
 use crate::{
     config::{TICKET_CREATION_CATEGORY, TICKET_LOG_CHANNEL},
-    database::models::{Ticket, TicketConfig},
+    database::models::{Ticket, TicketConfig, TicketHistories, TicketHistory},
     utils::components::ticket::is_ticket,
 };
 
@@ -35,11 +35,30 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
     let tickets_category = ChannelId::from(TICKET_CREATION_CATEGORY.parse::<u64>().unwrap());
     let guild_id = component.guild_id.unwrap();
 
-    if let Some(ticket) = TicketConfig::get(guild_id.0).unwrap() {
-        if ticket.ticket_id != component.message.id.0 {
-            return;
-        }
-    };
+    let ticket = TicketConfig::get(guild_id.0).unwrap();
+
+    if ticket.is_none() {
+        component.create_interaction_response(&ctx, |res| {
+            res.kind(InteractionResponseType::ChannelMessageWithSource)
+            .interaction_response_data(|msg| 
+                msg.content("O ticket não foi configurado")
+                .ephemeral(true)
+            )
+        }).await.unwrap();
+        return;
+    }
+
+    if ticket.unwrap().ticket_id != component.message.id.0 {
+        component.create_interaction_response(&ctx, |res| {
+            res.kind(InteractionResponseType::ChannelMessageWithSource)
+            .interaction_response_data(|msg| 
+                msg.content("Este ticket não é valido")
+                .ephemeral(true)
+            )
+        }).await.unwrap();
+        return;
+    }
+
 
     let mut ticket_embed = CreateEmbed::default();
     let mut ticket_channel = CreateChannel::default();
@@ -129,6 +148,14 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
         )
         .await
         .unwrap();
+
+    TicketHistory::new(TicketHistory {
+        user_id: component.user.id.0,
+        guild_id: guild_id.0,
+        ticket_id: rand::random::<u64>(),
+        ticket_status: "aberto".to_string(),
+    })
+    .unwrap();
 
     tickets_channel
         .send_message(&ctx, |msg| msg.set_embed(ticket_embed))
