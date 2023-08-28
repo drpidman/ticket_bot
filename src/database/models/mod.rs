@@ -11,7 +11,7 @@ pub struct TicketHistory {
     pub user_id: u64,
     pub guild_id: u64,
     pub ticket_id: u64,
-    pub ticket_status: String
+    pub ticket_status: String,
 }
 
 pub trait Ticket {

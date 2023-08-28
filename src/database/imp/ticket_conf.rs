@@ -52,7 +52,6 @@ impl Ticket for TicketConfig {
         } else {
             Ok(None)
         }
-
     }
 
     fn get_ticket(_ticket_id: u64) {}

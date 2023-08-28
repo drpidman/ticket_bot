@@ -152,9 +152,7 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
         .await
         .unwrap();
 
-    let ticket_channel = get_ticket_channel(ctx, component)
-        .await
-        .unwrap();
+    let ticket_channel = get_ticket_channel(ctx, component).await.unwrap();
 
     ticket_embed.field("Usuario", &component.user.name, false);
     ticket_embed.field("Canal", ticket_channel.1.name, false);

@@ -27,26 +27,21 @@ impl TicketHistories for TicketHistory {
                 drop(db.close());
                 Ok(())
             }
-            Err(err) => {
-                Err(err)
-            }
+            Err(err) => Err(err),
         }
     }
 
     fn get(user_id: u64) -> Result<Option<TicketHistory>, rusqlite::Error> {
         let mut db = Connection::open("config.db")?;
-        let transaction = db.transaction()?; 
-        let mut stmt = match transaction.prepare(
-            "SELECT * FROM ticket_history WHERE user_id = :userid"
-        ) {
-            Ok(status) => {
-                status
-            },
-            Err(err) => {
-                println!("Ocorreu um erro ao preparar o estado:{:?}", err);
-                panic!("{:?}", err)
-            }
-        };
+        let transaction = db.transaction()?;
+        let mut stmt =
+            match transaction.prepare("SELECT * FROM ticket_history WHERE user_id = :userid") {
+                Ok(status) => status,
+                Err(err) => {
+                    println!("Ocorreu um erro ao preparar o estado:{:?}", err);
+                    panic!("{:?}", err)
+                }
+            };
 
         let mut query = stmt.query(&[(":userid", &user_id)])?;
 
@@ -55,7 +50,7 @@ impl TicketHistories for TicketHistory {
                 ticket_id: row.get(0)?,
                 guild_id: row.get(1)?,
                 user_id: row.get(2)?,
-                ticket_status: row.get::<usize, String>(3).map(|s| s.to_string()).unwrap()
+                ticket_status: row.get::<usize, String>(3).map(|s| s.to_string()).unwrap(),
             })
         } else {
             None
@@ -66,7 +61,5 @@ impl TicketHistories for TicketHistory {
         } else {
             Ok(None)
         }
-
-
     }
 }
