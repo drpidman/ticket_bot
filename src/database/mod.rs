@@ -9,5 +9,6 @@ pub fn init() {
     db.execute(
         "CREATE TABLE IF NOT EXISTS config(guild INTEGER PRIMARY KEY, ticket INTEGER)",
         (),
-    ).unwrap();
+    )
+    .unwrap();
 }

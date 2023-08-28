@@ -21,16 +21,20 @@ pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &In
     let option_channel = options.get(0).unwrap().resolved.as_ref().unwrap();
     let option_desc = options.get(1).unwrap().resolved.as_ref().unwrap();
 
-    if TicketConfig::get(command.guild_id.unwrap().0).unwrap().is_some() {
+    if TicketConfig::get(command.guild_id.unwrap().0)
+        .unwrap()
+        .is_some()
+    {
         command
-        .create_interaction_response(&ctx, |res| {
-            res.kind(InteractionResponseType::ChannelMessageWithSource)
-                .interaction_response_data(|msg| {
-                    msg.content("Já existe uma configuração para este servidor").ephemeral(true)
-                })
-        })
-        .await
-        .unwrap();
+            .create_interaction_response(&ctx, |res| {
+                res.kind(InteractionResponseType::ChannelMessageWithSource)
+                    .interaction_response_data(|msg| {
+                        msg.content("Já existe uma configuração para este servidor")
+                            .ephemeral(true)
+                    })
+            })
+            .await
+            .unwrap();
         return;
     }
 
@@ -79,7 +83,8 @@ pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &In
     TicketConfig::new(TicketConfig {
         guild_id: command.guild_id.unwrap().0,
         ticket_id: _message.id.0,
-    }).unwrap();
+    })
+    .unwrap();
 
     command
         .create_interaction_response(&ctx, |res| {

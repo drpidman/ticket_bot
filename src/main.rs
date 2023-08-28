@@ -5,11 +5,11 @@ use std::env;
 
 use crate::events::Handler;
 
-mod interactions;
 mod commands;
-mod database;
 mod config;
+mod database;
 mod events;
+mod interactions;
 mod utils;
 
 #[tokio::main]
