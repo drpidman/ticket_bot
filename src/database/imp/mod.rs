@@ -47,7 +47,12 @@ impl Ticket for TicketConfig {
             None
         };
 
-        Ok(Some(ticket.unwrap()))
+        if ticket.is_some() {
+            Ok(Some(ticket.unwrap()))
+        } else {
+            Ok(None)
+        }
+
     }
 
     fn get_ticket(_ticket_id: u64) {}
