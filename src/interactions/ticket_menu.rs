@@ -6,7 +6,7 @@ use serenity::{
             message_component::MessageComponentInteraction, ChannelId, ChannelType, Interaction,
             InteractionResponseType, PermissionOverwrite, PermissionOverwriteType,
         },
-        Permissions,
+        Permissions, Timestamp,
     },
     prelude::Context,
     utils::Color,
@@ -15,7 +15,7 @@ use serenity::{
 use crate::{
     config::{TICKET_CREATION_CATEGORY, TICKET_LOG_CHANNEL},
     database::models::{Ticket, TicketConfig, TicketHistories, TicketHistory},
-    utils::components::ticket::{get_ticket_channel, is_user_ticket},
+    utils::components::ticket::{get_ticket_channel, is_user_ticket, ticket_actions},
 };
 
 async fn response_to_user(ctx: &Context, component: &MessageComponentInteraction) {
@@ -156,6 +156,20 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
 
     ticket_embed.field("Usuario", &component.user.name, false);
     ticket_embed.field("Canal", ticket_channel.1.name, false);
+
+    ticket_channel
+        .0
+        .send_message(&ctx, |msg| {
+            msg.add_embed(|embed| embed.title("Gerenciador de ticket")
+            .color(Color::DARK_GOLD)
+            .description("Use o botão abaixo para fechar o ticket")
+            .timestamp(Timestamp::now())
+        ).components(|components| components
+            .create_action_row(|action| action.add_button(ticket_actions()))
+        )
+        })
+        .await
+        .unwrap();
 
     TicketHistory::new(TicketHistory {
         user_id: component.user.id.0,

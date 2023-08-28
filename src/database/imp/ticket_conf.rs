@@ -35,7 +35,6 @@ impl Ticket for TicketConfig {
         let db = Connection::open("config.db").unwrap();
 
         let mut stmt = db.prepare("SELECT * FROM config WHERE guild = :guild")?;
-
         let mut query = stmt.query(&[(":guild", &guild_id)]).unwrap();
 
         let ticket = if let Some(row) = query.next()? {

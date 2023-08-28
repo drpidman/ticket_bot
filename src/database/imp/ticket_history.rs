@@ -33,6 +33,7 @@ impl TicketHistories for TicketHistory {
 
     fn get(user_id: u64) -> Result<Option<TicketHistory>, rusqlite::Error> {
         let mut db = Connection::open("config.db")?;
+        
         let transaction = db.transaction()?;
         let mut stmt =
             match transaction.prepare("SELECT * FROM ticket_history WHERE user_id = :userid") {

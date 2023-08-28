@@ -1,8 +1,8 @@
 use serenity::{
-    builder::CreateSelectMenu,
+    builder::{CreateSelectMenu, CreateButton},
     model::prelude::{
         message_component::MessageComponentInteraction, ChannelId, GuildChannel,
-        InteractionResponseType,
+        InteractionResponseType, component::ButtonStyle,
     },
     prelude::Context,
 };
@@ -40,6 +40,16 @@ pub async fn is_user_ticket(ctx: &Context, component: &MessageComponentInteracti
     }
 
     false
+}
+
+pub fn ticket_actions() -> CreateButton {
+    let mut button = CreateButton::default();
+
+    button.custom_id("ticket_button_actions")
+    .label("Fechar Ticket")
+    .style(ButtonStyle::Danger);
+
+    button
 }
 
 pub fn ticket_menu() -> CreateSelectMenu {
