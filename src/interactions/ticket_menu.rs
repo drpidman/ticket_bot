@@ -33,8 +33,9 @@ async fn response_to_user(ctx: &Context, component: &MessageComponentInteraction
 pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction, _i: &Interaction) {
     let tickets_channel = ChannelId::from(TICKET_LOG_CHANNEL.parse::<u64>().unwrap());
     let tickets_category = ChannelId::from(TICKET_CREATION_CATEGORY.parse::<u64>().unwrap());
+    let guild_id = component.guild_id.unwrap();
 
-    if let Some(ticket) = TicketConfig::get(component.guild_id.unwrap().0).unwrap() {
+    if let Some(ticket) = TicketConfig::get(guild_id.0).unwrap() {
         if ticket.ticket_id != component.message.id.0 {
             return;
         }
@@ -46,7 +47,7 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
 
     let everyone_role = ctx
         .cache
-        .guild_roles(component.guild_id.unwrap())
+        .guild_roles(guild_id)
         .unwrap()
         .iter()
         .find(|role| role.1.name == "@everyone")
@@ -122,7 +123,7 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
     ctx.http
         .as_ref()
         .create_channel(
-            component.guild_id.unwrap().as_u64().to_owned(),
+            guild_id.0,
             &json::hashmap_to_json_map(ticket_channel.0),
             Some("Ticket de suporte"),
         )
