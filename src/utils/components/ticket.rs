@@ -1,28 +1,23 @@
 use serenity::{
     builder::CreateSelectMenu,
-    model::prelude::{message_component::MessageComponentInteraction, InteractionResponseType},
+    model::prelude::{message_component::MessageComponentInteraction, InteractionResponseType, ChannelId, GuildChannel},
     prelude::Context,
 };
 
-pub async fn is_ticket(ctx: &Context, component: &MessageComponentInteraction) -> bool {
-    let channels = component.guild_id.unwrap().channels(&ctx).await.unwrap();
+pub async fn get_ticket_channel(ctx: &Context, component: &MessageComponentInteraction) -> Option<(ChannelId, GuildChannel)> {
+    let channels = component.guild_id.unwrap().channels(ctx).await.unwrap();
 
-    let channel = channels
-        .iter()
-        .find(|ch| ch.1.name.contains(&format!("{}", component.user.id)));
+    let user_id_str = component.user.id.to_string();
+    let channel = channels.iter().find(|(_, ch)| ch.name.contains(&user_id_str));
+
+    channel.map(|(channel_id, channel)| (channel_id.clone(), channel.clone()))
+}
+
+pub async fn is_user_ticket(ctx: &Context, component: &MessageComponentInteraction) -> bool {
+    let channel = get_ticket_channel(ctx, component).await;
 
     if channel.is_some() {
-        component
-            .create_interaction_response(&ctx, |res| {
-                res.kind(InteractionResponseType::ChannelMessageWithSource)
-                    .interaction_response_data(|msg| {
-                        msg.content("Você já abriu um ticket anteriormente")
-                            .ephemeral(true)
-                    })
-            })
-            .await
-            .unwrap();
-        return true;
+        return true
     }
 
     false

@@ -15,7 +15,7 @@ use serenity::{
 use crate::{
     config::{TICKET_CREATION_CATEGORY, TICKET_LOG_CHANNEL},
     database::models::{Ticket, TicketConfig, TicketHistories, TicketHistory},
-    utils::components::ticket::is_ticket,
+    utils::components::ticket::{get_ticket_channel, is_user_ticket},
 };
 
 async fn response_to_user(ctx: &Context, component: &MessageComponentInteraction) {
@@ -38,27 +38,30 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
     let ticket = TicketConfig::get(guild_id.0).unwrap();
 
     if ticket.is_none() {
-        component.create_interaction_response(&ctx, |res| {
-            res.kind(InteractionResponseType::ChannelMessageWithSource)
-            .interaction_response_data(|msg| 
-                msg.content("O ticket não foi configurado")
-                .ephemeral(true)
-            )
-        }).await.unwrap();
+        component
+            .create_interaction_response(&ctx, |res| {
+                res.kind(InteractionResponseType::ChannelMessageWithSource)
+                    .interaction_response_data(|msg| {
+                        msg.content("O ticket não foi configurado").ephemeral(true)
+                    })
+            })
+            .await
+            .unwrap();
         return;
     }
 
     if ticket.unwrap().ticket_id != component.message.id.0 {
-        component.create_interaction_response(&ctx, |res| {
-            res.kind(InteractionResponseType::ChannelMessageWithSource)
-            .interaction_response_data(|msg| 
-                msg.content("Este ticket não é valido")
-                .ephemeral(true)
-            )
-        }).await.unwrap();
+        component
+            .create_interaction_response(&ctx, |res| {
+                res.kind(InteractionResponseType::ChannelMessageWithSource)
+                    .interaction_response_data(|msg| {
+                        msg.content("Este ticket não é valido").ephemeral(true)
+                    })
+            })
+            .await
+            .unwrap();
         return;
     }
-
 
     let mut ticket_embed = CreateEmbed::default();
     let mut ticket_channel = CreateChannel::default();
@@ -101,7 +104,7 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
         .unwrap()
         .to_string();
 
-    if is_ticket(ctx, component).await {
+    if is_user_ticket(ctx, component).await {
         return;
     }
 
@@ -145,6 +148,16 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
             guild_id.0,
             &json::hashmap_to_json_map(ticket_channel.0),
             Some("Ticket de suporte"),
+        )
+        .await
+        .unwrap();
+
+    get_ticket_channel(&ctx, &component)
+        .await
+        .unwrap()
+        .0
+        .send_message(&ctx, |msg| 
+            msg.content("Canal de ticket")
         )
         .await
         .unwrap();
