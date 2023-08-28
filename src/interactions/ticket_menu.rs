@@ -152,7 +152,7 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
         .await
         .unwrap();
 
-    let ticket_channel = get_ticket_channel(&ctx, &component)
+    let ticket_channel = get_ticket_channel(ctx, component)
         .await
         .unwrap();
 

@@ -18,7 +18,7 @@ pub async fn get_ticket_channel(
         .iter()
         .find(|(_, ch)| ch.name.contains(&user_id_str));
 
-    channel.map(|(channel_id, channel)| (channel_id.clone(), channel.clone()))
+    channel.map(|(channel_id, channel)| (*channel_id, channel.clone()))
 }
 
 pub async fn is_user_ticket(ctx: &Context, component: &MessageComponentInteraction) -> bool {
