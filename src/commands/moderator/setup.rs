@@ -13,7 +13,7 @@ use serenity::{
 
 use crate::utils::components::ticket::ticket_menu;
 
-pub async fn command_run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &Interaction) {
+pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &Interaction) {
     let options = &command.data.options;
     let option_channel = options.get(0).unwrap().resolved.as_ref().unwrap();
     let option_desc = options.get(1).unwrap().resolved.as_ref().unwrap();

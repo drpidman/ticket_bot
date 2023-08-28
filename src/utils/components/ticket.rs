@@ -4,17 +4,12 @@ use serenity::{
     prelude::Context,
 };
 
-pub async fn is_ticket(
-    ctx: &Context,
-    component: &MessageComponentInteraction,
-    selected_choice: &str,
-) -> bool {
+pub async fn is_ticket(ctx: &Context, component: &MessageComponentInteraction) -> bool {
     let channels = component.guild_id.unwrap().channels(&ctx).await.unwrap();
 
-    let channel = channels.iter().find(|ch| {
-        ch.1.name == format!("{}-{}", selected_choice, component.user.id)
-            || ch.1.name.contains(&format!("{}", component.user.id))
-    });
+    let channel = channels
+        .iter()
+        .find(|ch| ch.1.name.contains(&format!("{}", component.user.id)));
 
     if channel.is_some() {
         component

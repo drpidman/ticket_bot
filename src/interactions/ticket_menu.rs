@@ -74,7 +74,7 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
         .unwrap()
         .to_string();
 
-    if is_ticket(ctx, component, choice).await {
+    if is_ticket(ctx, component).await {
         return;
     }
 
