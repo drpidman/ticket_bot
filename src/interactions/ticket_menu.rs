@@ -160,13 +160,16 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
     ticket_channel
         .0
         .send_message(&ctx, |msg| {
-            msg.add_embed(|embed| embed.title("Gerenciador de ticket")
-            .color(Color::DARK_GOLD)
-            .description("Use o botão abaixo para fechar o ticket")
-            .timestamp(Timestamp::now())
-        ).components(|components| components
-            .create_action_row(|action| action.add_button(ticket_actions()))
-        )
+            msg.add_embed(|embed| {
+                embed
+                    .title("Gerenciador de ticket")
+                    .color(Color::DARK_GOLD)
+                    .description("Use o botão abaixo para fechar o ticket")
+                    .timestamp(Timestamp::now())
+            })
+            .components(|components| {
+                components.create_action_row(|action| action.add_button(ticket_actions()))
+            })
         })
         .await
         .unwrap();
