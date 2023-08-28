@@ -14,6 +14,7 @@ use serenity::{
 
 use crate::{
     config::{TICKET_CREATION_CATEGORY, TICKET_LOG_CHANNEL},
+    database::models::{Ticket, TicketConfig},
     utils::components::ticket::is_ticket,
 };
 
@@ -32,6 +33,15 @@ async fn response_to_user(ctx: &Context, component: &MessageComponentInteraction
 pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction, _i: &Interaction) {
     let tickets_channel = ChannelId::from(TICKET_LOG_CHANNEL.parse::<u64>().unwrap());
     let tickets_category = ChannelId::from(TICKET_CREATION_CATEGORY.parse::<u64>().unwrap());
+
+    if TicketConfig::get(component.guild_id.unwrap().0)
+        .unwrap()
+        .unwrap()
+        .ticket_id
+        != component.message.id.0
+    {
+        return;
+    }
 
     let mut ticket_embed = CreateEmbed::default();
     let mut ticket_channel = CreateChannel::default();

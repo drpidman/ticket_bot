@@ -26,16 +26,12 @@ pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &In
     let channel = command.channel_id.as_ref().name(&ctx.cache).await.unwrap();
 
     let ticket_metadata: Vec<String> = channel
-        .replace("-", " ")
-        .split(" ")
+        .replace('-', " ")
+        .split(' ')
         .map(|s| s.to_string())
         .collect();
 
-    let user_option = if let Some(option) = ticket_metadata.get(1) {
-        Some(option)
-    } else {
-        None
-    };
+    let user_option = ticket_metadata.get(1);
 
     if user_option.is_none() {
         response_error(ctx, command).await;
