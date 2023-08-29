@@ -63,9 +63,7 @@ pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &In
         None
     };
 
-    if ticket.is_some() {
-        TicketHistory::close_ticket(ticket.unwrap().ticket_id).unwrap();
-    }
+    TicketHistory::close_ticket(ticket.unwrap().ticket_id).unwrap();
 
     command.channel_id.delete(&ctx).await.unwrap();
 }

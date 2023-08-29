@@ -1,4 +1,5 @@
 use rusqlite::Connection;
+use serenity::async_trait;
 
 use crate::database::models::{TicketHistories, TicketHistory};
 
@@ -32,41 +33,9 @@ impl TicketHistories for TicketHistory {
         }
     }
 
-    fn get(user_id: u64) -> Result<Option<TicketHistory>, rusqlite::Error> {
-        let mut db = Connection::open("config.db")?;
-
-        let transaction = db.transaction()?;
-        let mut stmt =
-            match transaction.prepare("SELECT * FROM ticket_history WHERE user_id = :userid") {
-                Ok(status) => status,
-                Err(err) => {
-                    println!("Ocorreu um erro ao preparar o estado:{:?}", err);
-                    panic!("{:?}", err)
-                }
-            };
-
-        let mut query = stmt.query(&[(":userid", &user_id)])?;
-
-        let ticket = if let Some(row) = query.next()? {
-            Some(TicketHistory {
-                ticket_id: row.get(0)?,
-                guild_id: row.get(1)?,
-                user_id: row.get(2)?,
-                ticket_channel: row.get(3)?,
-                ticket_status: row.get::<usize, String>(4).map(|s| s.to_string()).unwrap(),
-            })
-        } else {
-            None
-        };
-
-        if ticket.is_some() {
-            Ok(Some(ticket.unwrap()))
-        } else {
-            Ok(None)
-        }
-    }
-
     fn get_by_channel(channel_id: u64) -> Result<Option<TicketHistory>, rusqlite::Error> {
+        println!("get_by_channel():{}", channel_id);
+
         let mut db = Connection::open("config.db")?;
         let transaction = db.transaction()?;
 
@@ -80,19 +49,33 @@ impl TicketHistories for TicketHistory {
             }
         };
 
-        let mut query = stmt.query(&[(":channelid", &channel_id)])?;
+        println!("get_by_channel():stmt");
+
+        let mut query = match stmt.query(&[(":channelid", &channel_id)]) {
+            Ok(query) => query,
+            Err(err) => {
+                println!("Ocorreu um erro ao preparar o estado:{:?}", err);
+                panic!("{:?}", err)
+            }
+        };
+
+        println!("get_by_channel():query");
 
         let ticket = if let Some(row) = query.next()? {
+            println!("query row:{:?}", row);
             Some(TicketHistory {
-                ticket_id: row.get(0)?,
+                ticket_id: row.get::<usize, u64>(0)?,
                 guild_id: row.get(1)?,
                 user_id: row.get(2)?,
                 ticket_channel: row.get(3)?,
                 ticket_status: row.get::<usize, String>(4).map(|s| s.to_string()).unwrap(),
             })
         } else {
+            println!("None()");
             None
         };
+
+        println!("ticket in query row:{:?}", ticket);
 
         if ticket.is_some() {
             Ok(Some(ticket.unwrap()))
