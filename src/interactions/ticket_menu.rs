@@ -178,6 +178,7 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
         user_id: component.user.id.0,
         guild_id: guild_id.0,
         ticket_id: rand::random::<u64>(),
+        ticket_channel: ticket_channel.1.id.0,
         ticket_status: "aberto".to_string(),
     })
     .unwrap();
