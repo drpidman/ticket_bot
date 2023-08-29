@@ -7,6 +7,8 @@ use serenity::{
     prelude::Context,
 };
 
+use crate::utils::components::ticket::channel_parser;
+
 pub async fn response_error(ctx: &Context, command: &ApplicationCommandInteraction) {
     command
         .create_interaction_response(&ctx, |res| {
@@ -25,12 +27,7 @@ pub async fn response_error(ctx: &Context, command: &ApplicationCommandInteracti
 pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &Interaction) {
     let channel = command.channel_id.as_ref().name(&ctx.cache).await.unwrap();
 
-    let ticket_metadata: Vec<String> = channel
-        .replace('-', " ")
-        .split(' ')
-        .map(|s| s.to_string())
-        .collect();
-
+    let ticket_metadata = channel_parser(channel);
     let user_option = ticket_metadata.get(1);
 
     if user_option.is_none() {

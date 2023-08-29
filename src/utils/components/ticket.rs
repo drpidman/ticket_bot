@@ -7,6 +7,14 @@ use serenity::{
     prelude::Context,
 };
 
+pub fn channel_parser(channel: String) -> Vec<String> {
+    channel
+        .replace('-', " ")
+        .split(' ')
+        .map(|s| s.to_string())
+        .collect()
+}
+
 pub async fn get_ticket_channel(
     ctx: &Context,
     component: &MessageComponentInteraction,
