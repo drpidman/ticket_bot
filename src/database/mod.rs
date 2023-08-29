@@ -14,7 +14,7 @@ pub fn init() {
 
     db.execute(
         "CREATE TABLE IF NOT EXISTS ticket_history (
-        ticket_id INTEGER, guild_id INTEGER, user_id INTEGER, ticket_status TEXT
+        ticket_id INTEGER, guild_id INTEGER, user_id INTEGER, ticket_channel INTEGER,ticket_status TEXT
     )",
         (),
     )
