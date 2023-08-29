@@ -32,14 +32,14 @@ impl EventHandler for Handler {
             if let ComponentType::SelectMenu = component.data.component_type {
                 match component.data.custom_id.as_str() {
                     "ticket_menu" => ticket_menu(&ctx, component, &interaction).await,
-                    _ => ()
+                    _ => (),
                 }
             }
 
             if let ComponentType::Button = component.data.component_type {
                 match component.data.custom_id.as_str() {
                     "ticket_button_actions" => ticket_button_action(&ctx, component).await,
-                    _ => ()
+                    _ => (),
                 }
             }
         }
