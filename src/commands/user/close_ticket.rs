@@ -7,7 +7,10 @@ use serenity::{
     prelude::Context,
 };
 
-use crate::utils::components::ticket::channel_parser;
+use crate::{
+    database::models::{TicketHistories, TicketHistory},
+    utils::components::ticket::channel_parser,
+};
 
 pub async fn response_error(ctx: &Context, command: &ApplicationCommandInteraction) {
     command
@@ -52,6 +55,16 @@ pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &In
     {
         response_error(ctx, command).await;
         return;
+    }
+
+    let ticket = if let Ok(ticket) = TicketHistory::get_by_channel(command.channel_id.0) {
+        Some(ticket.unwrap())
+    } else {
+        None
+    };
+
+    if ticket.is_some() {
+        TicketHistory::close_ticket(ticket.unwrap().ticket_id).unwrap();
     }
 
     command.channel_id.delete(&ctx).await.unwrap();
