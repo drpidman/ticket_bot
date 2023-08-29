@@ -1,7 +1,7 @@
 use database::init;
 use dotenv::dotenv;
 use serenity::prelude::*;
-use std::env;
+use std::{env, fs};
 
 use crate::events::Handler;
 
@@ -23,6 +23,10 @@ async fn main() {
     .event_handler(Handler)
     .await
     .expect("Erro ao encontrar o token do bot");
+
+    if fs::metadata("config.db").is_err() {
+        fs::File::create("config.db").unwrap();
+    }
 
     init();
 
