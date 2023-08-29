@@ -5,6 +5,7 @@ use serenity::prelude::{Context, EventHandler};
 
 use crate::commands::moderator::setup;
 use crate::commands::user::close_ticket;
+use crate::interactions::ticket_button_actions::ticket_button_action;
 use crate::interactions::ticket_menu::ticket_menu;
 
 pub struct Handler;
@@ -31,6 +32,7 @@ impl EventHandler for Handler {
             if let ComponentType::SelectMenu = component.data.component_type {
                 match component.data.custom_id.as_str() {
                     "ticket_menu" => ticket_menu(&ctx, component, &interaction).await,
+                    "ticket_button_actions" => ticket_button_action(&ctx, component).await,
                     _ => (),
                 }
             }
