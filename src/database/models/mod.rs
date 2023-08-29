@@ -1,6 +1,5 @@
 use rusqlite::Error;
 use serde::*;
-use serenity::async_trait;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TicketConfig {

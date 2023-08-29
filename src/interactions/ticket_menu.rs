@@ -63,7 +63,7 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
         return;
     }
 
-    let mut ticket_embed = CreateEmbed::default();
+    let ticket_embed = &mut CreateEmbed::default();
     let mut ticket_channel = CreateChannel::default();
     ticket_channel.kind(ChannelType::Text);
 
@@ -184,7 +184,13 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
     .unwrap();
 
     tickets_channel
-        .send_message(&ctx, |msg| msg.set_embed(ticket_embed))
+        .send_message(&ctx, |msg| msg.set_embed(ticket_embed.to_owned()))
+        .await
+        .unwrap();
+
+    component
+        .user
+        .dm(&ctx, |dm| dm.set_embed(ticket_embed.to_owned()))
         .await
         .unwrap();
 }

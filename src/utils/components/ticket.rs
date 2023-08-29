@@ -7,12 +7,30 @@ use serenity::{
     prelude::Context,
 };
 
-pub fn channel_parser(channel: String) -> Vec<String> {
+pub struct Metadata {
+    pub request: String,
+    pub user: String,
+}
+
+pub fn channel_parser(channel: &str) -> Vec<String> {
     channel
         .replace('-', " ")
         .split(' ')
         .map(|s| s.to_string())
         .collect()
+}
+
+pub fn get_metadata(channel: &str) -> Option<Metadata> {
+    let metadata = channel_parser(channel);
+
+    if metadata.len() >= 2 {
+        return Some(Metadata {
+            request: metadata.get(0).unwrap().to_owned(),
+            user: metadata.get(1).unwrap().to_owned(),
+        });
+    } else {
+        None
+    }
 }
 
 pub async fn get_ticket_channel(

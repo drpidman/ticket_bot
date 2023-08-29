@@ -1,5 +1,4 @@
 use rusqlite::Connection;
-use serenity::async_trait;
 
 use crate::database::models::{TicketHistories, TicketHistory};
 
@@ -68,8 +67,8 @@ impl TicketHistories for TicketHistory {
             None
         };
 
-        if ticket.is_some() {
-            Ok(Some(ticket.unwrap()))
+        if let Some(ticket) = ticket {
+            Ok(Some(ticket))
         } else {
             Ok(None)
         }

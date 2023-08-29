@@ -1,13 +1,19 @@
 use serenity::{
+    builder::CreateEmbed,
     http::Http,
-    model::prelude::{
-        application_command::ApplicationCommandInteraction, command::Command, Interaction,
-        InteractionResponseType, UserId,
+    model::{
+        prelude::{
+            application_command::ApplicationCommandInteraction, command::Command, ChannelId, Embed,
+            Interaction, InteractionResponseType, UserId,
+        },
+        Timestamp,
     },
     prelude::Context,
+    utils::Color,
 };
 
 use crate::{
+    config::TICKET_LOG_CHANNEL,
     database::models::{TicketHistories, TicketHistory},
     utils::components::ticket::channel_parser,
 };
@@ -28,9 +34,12 @@ pub async fn response_error(ctx: &Context, command: &ApplicationCommandInteracti
 }
 
 pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &Interaction) {
+    let tickets_channel = ChannelId::from(TICKET_LOG_CHANNEL.parse::<u64>().unwrap());
     let channel = command.channel_id.as_ref().name(&ctx.cache).await.unwrap();
 
-    let ticket_metadata = channel_parser(channel);
+    let ticket_metadata = channel_parser(&channel);
+
+    let user_request = ticket_metadata.get(0);
     let user_option = ticket_metadata.get(1);
 
     if user_option.is_none() {
@@ -49,6 +58,13 @@ pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &In
         return;
     }
 
+    let user = command
+        .guild_id
+        .unwrap()
+        .member(&ctx, user.unwrap().0)
+        .await
+        .unwrap();
+
     if !ticket_metadata.contains(&"suporte".to_string())
         & !ticket_metadata.contains(&"duvida".to_string())
         & !ticket_metadata.contains(&"problema".to_string())
@@ -63,8 +79,27 @@ pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &In
         None
     };
 
-    TicketHistory::close_ticket(ticket.unwrap().ticket_id).unwrap();
+    let mut embed = CreateEmbed::default();
+    let embed = embed
+        .title(format!("Requisição - {}", user_request.unwrap()))
+        .description("Este ticket foi fechado")
+        .field("Aberto por", user.display_name(), false)
+        .field("Tipo", user_request.unwrap().to_string(), false)
+        .timestamp(Timestamp::now())
+        .color(Color::PURPLE);
 
+    tickets_channel
+        .send_message(&ctx, |msg| msg.set_embed(embed.to_owned()))
+        .await
+        .unwrap();
+
+    command
+        .user
+        .dm(&ctx, |msg| msg.set_embed(embed.to_owned()))
+        .await
+        .unwrap();
+
+    TicketHistory::close_ticket(ticket.unwrap().ticket_id).unwrap();
     command.channel_id.delete(&ctx).await.unwrap();
 }
 

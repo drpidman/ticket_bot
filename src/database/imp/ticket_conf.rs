@@ -46,8 +46,8 @@ impl Ticket for TicketConfig {
             None
         };
 
-        if ticket.is_some() {
-            Ok(Some(ticket.unwrap()))
+        if let Some(ticket) = ticket {
+            Ok(Some(ticket))
         } else {
             Ok(None)
         }
