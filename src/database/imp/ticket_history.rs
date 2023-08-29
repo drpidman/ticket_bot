@@ -34,8 +34,6 @@ impl TicketHistories for TicketHistory {
     }
 
     fn get_by_channel(channel_id: u64) -> Result<Option<TicketHistory>, rusqlite::Error> {
-        println!("get_by_channel():{}", channel_id);
-
         let mut db = Connection::open("config.db")?;
         let transaction = db.transaction()?;
 
@@ -49,8 +47,6 @@ impl TicketHistories for TicketHistory {
             }
         };
 
-        println!("get_by_channel():stmt");
-
         let mut query = match stmt.query(&[(":channelid", &channel_id)]) {
             Ok(query) => query,
             Err(err) => {
@@ -58,8 +54,6 @@ impl TicketHistories for TicketHistory {
                 panic!("{:?}", err)
             }
         };
-
-        println!("get_by_channel():query");
 
         let ticket = if let Some(row) = query.next()? {
             println!("query row:{:?}", row);
@@ -71,11 +65,8 @@ impl TicketHistories for TicketHistory {
                 ticket_status: row.get::<usize, String>(4).map(|s| s.to_string()).unwrap(),
             })
         } else {
-            println!("None()");
             None
         };
-
-        println!("ticket in query row:{:?}", ticket);
 
         if ticket.is_some() {
             Ok(Some(ticket.unwrap()))
