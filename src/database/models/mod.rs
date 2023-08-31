@@ -4,7 +4,9 @@ use serde::*;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TicketConfig {
     pub guild_id: u64,
+    pub category_id: u64,
     pub ticket_id: u64,
+    pub ticket_log: u64
 }
 
 #[derive(Debug, Serialize, Deserialize)]

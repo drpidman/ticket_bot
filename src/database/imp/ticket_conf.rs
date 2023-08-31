@@ -8,8 +8,16 @@ impl Ticket for TicketConfig {
         let transaction = db.transaction().unwrap();
 
         match transaction.execute(
-            "INSERT INTO config (guild, ticket) VALUES(:guild, :ticket)",
-            &[(":guild", &ticket.guild_id), (":ticket", &ticket.ticket_id)],
+            "INSERT INTO config (guild, category_id, ticket, ticket_log) VALUES(
+                :guild,
+                :category_id,
+                :ticket,
+                :ticket_log)",
+            &[
+                (":guild", &ticket.guild_id),
+                (":category_id", &ticket.category_id),
+                (":ticket", &ticket.ticket_id),
+                (":ticket_log", &ticket.ticket_log)],
         ) {
             Ok(_) => Ok(()),
             Err(err) => {
@@ -40,7 +48,9 @@ impl Ticket for TicketConfig {
         let ticket = if let Some(row) = query.next()? {
             Some(TicketConfig {
                 guild_id: row.get(0)?,
-                ticket_id: row.get(1)?,
+                category_id: row.get(1)?,
+                ticket_id: row.get(2)?,
+                ticket_log: row.get(3)?
             })
         } else {
             None
