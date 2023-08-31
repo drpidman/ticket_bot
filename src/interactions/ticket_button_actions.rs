@@ -12,13 +12,12 @@ use serenity::{
 };
 
 use crate::{
-    config::TICKET_LOG_CHANNEL,
     database::models::{TicketHistories, TicketHistory},
-    utils::components::ticket::{channel_parser, get_metadata},
+    utils::{components::ticket::get_metadata, config::guild_config::get_config},
 };
 
 pub async fn ticket_button_action(ctx: &Context, component: &MessageComponentInteraction) {
-    let tickets_channel = ChannelId::from(TICKET_LOG_CHANNEL.parse::<u64>().unwrap());
+    let tickets_channel = ChannelId::from(get_config(component.guild_id.unwrap().0).unwrap().ticket_log);
     let current_ticket = TicketHistory::get_by_channel(component.channel_id.0);
 
     let ticket_metadata = get_metadata(
