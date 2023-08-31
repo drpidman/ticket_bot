@@ -13,9 +13,11 @@ use serenity::{
 };
 
 use crate::{
-    config::{TICKET_CREATION_CATEGORY, TICKET_LOG_CHANNEL},
-    database::models::{Ticket, TicketConfig, TicketHistories, TicketHistory},
-    utils::components::ticket::{get_ticket_channel, is_user_ticket, ticket_actions},
+    database::models::{TicketHistories, TicketHistory},
+    utils::{
+        components::ticket::{get_ticket_channel, is_user_ticket, ticket_actions},
+        config::guild_config::get_config,
+    },
 };
 
 async fn response_to_user(ctx: &Context, component: &MessageComponentInteraction) {
@@ -31,13 +33,9 @@ async fn response_to_user(ctx: &Context, component: &MessageComponentInteraction
 }
 
 pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction, _i: &Interaction) {
-    let tickets_channel = ChannelId::from(TICKET_LOG_CHANNEL.parse::<u64>().unwrap());
-    let tickets_category = ChannelId::from(TICKET_CREATION_CATEGORY.parse::<u64>().unwrap());
-    let guild_id = component.guild_id.unwrap();
+    let guild_config = get_config(component.guild_id.unwrap().0);
 
-    let ticket = TicketConfig::get(guild_id.0).unwrap();
-
-    if ticket.is_none() {
+    if guild_config.is_none() {
         component
             .create_interaction_response(&ctx, |res| {
                 res.kind(InteractionResponseType::ChannelMessageWithSource)
@@ -50,7 +48,13 @@ pub async fn ticket_menu(ctx: &Context, component: &MessageComponentInteraction,
         return;
     }
 
-    if ticket.unwrap().ticket_id != component.message.id.0 {
+    let guild_config = guild_config.unwrap();
+
+    let tickets_channel = ChannelId::from(guild_config.ticket_log);
+    let tickets_category = ChannelId::from(guild_config.category_id);
+    let guild_id = component.guild_id.unwrap();
+
+    if guild_config.ticket_id != component.message.id.0 {
         component
             .create_interaction_response(&ctx, |res| {
                 res.kind(InteractionResponseType::ChannelMessageWithSource)
