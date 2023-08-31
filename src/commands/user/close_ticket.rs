@@ -13,9 +13,8 @@ use serenity::{
 };
 
 use crate::{
-    config::TICKET_LOG_CHANNEL,
     database::models::{TicketHistories, TicketHistory},
-    utils::components::ticket::channel_parser,
+    utils::{components::ticket::channel_parser, config::guild_config::get_config},
 };
 
 pub async fn response_error(ctx: &Context, command: &ApplicationCommandInteraction) {
@@ -34,10 +33,11 @@ pub async fn response_error(ctx: &Context, command: &ApplicationCommandInteracti
 }
 
 pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &Interaction) {
-    let tickets_channel = ChannelId::from(TICKET_LOG_CHANNEL.parse::<u64>().unwrap());
-    let channel = command.channel_id.as_ref().name(&ctx.cache).await.unwrap();
+    let tickets_channel =
+        ChannelId::from(get_config(command.guild_id.unwrap().0).unwrap().ticket_log);
 
-    let ticket_metadata = channel_parser(&channel);
+    let current_ticket = command.channel_id.as_ref().name(&ctx.cache).await.unwrap();
+    let ticket_metadata = channel_parser(&current_ticket);
 
     let user_request = ticket_metadata.get(0);
     let user_option = ticket_metadata.get(1);
