@@ -6,7 +6,6 @@ use std::{env, fs};
 use crate::events::Handler;
 
 mod commands;
-mod config;
 mod database;
 mod events;
 mod interactions;
