@@ -4,7 +4,7 @@ use serenity::{
         prelude::{
             application_command::{ApplicationCommandInteraction, CommandDataOptionValue},
             command::{Command, CommandOptionType},
-            ChannelId, ChannelType, Interaction, InteractionResponseType,
+            ChannelCategory, ChannelId, ChannelType, Interaction, InteractionResponseType,
         },
         Permissions,
     },
@@ -18,8 +18,11 @@ use crate::{
 
 pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &Interaction) {
     let options = &command.data.options;
+
     let option_channel = options.get(0).unwrap().resolved.as_ref().unwrap();
-    let option_desc = options.get(1).unwrap().resolved.as_ref().unwrap();
+    let option_category = options.get(1).unwrap().resolved.as_ref().unwrap();
+    let option_channel_log = options.get(2).unwrap().resolved.as_ref().unwrap();
+    let option_desc = options.get(3).unwrap().resolved.as_ref().unwrap();
 
     let ticket = TicketConfig::get(command.guild_id.unwrap().0).unwrap();
 
@@ -37,7 +40,7 @@ pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &In
         return;
     }
 
-    let option_banner = match options.get(2) {
+    let option_banner = match options.get(4) {
         Some(attachment) => {
             if let CommandDataOptionValue::Attachment(file) = &attachment.resolved.as_ref().unwrap()
             {
@@ -50,6 +53,18 @@ pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &In
     };
 
     let channel = if let CommandDataOptionValue::Channel(ch) = &option_channel {
+        ch.id
+    } else {
+        ChannelId::from(0)
+    };
+
+    let category = if let CommandDataOptionValue::Channel(ch) = &option_category {
+        ch.id
+    } else {
+        ChannelId::from(0)
+    };
+
+    let channel_log = if let CommandDataOptionValue::Channel(ch) = &option_channel_log {
         ch.id
     } else {
         ChannelId::from(0)
@@ -81,7 +96,9 @@ pub async fn run(ctx: &Context, command: &ApplicationCommandInteraction, _i: &In
 
     TicketConfig::new(TicketConfig {
         guild_id: command.guild_id.unwrap().0,
+        category_id: category.0,
         ticket_id: _message.id.0,
+        ticket_log: channel_log.0
     })
     .unwrap();
 
@@ -105,7 +122,23 @@ pub async fn register(http: &Http) {
                     .kind(CommandOptionType::Channel)
                     .channel_types(&[ChannelType::Text])
                     .name("channel")
-                    .description("Canal onde ficara o ticket")
+                    .description("Canal onde ficara a mensagem ticket")
+                    .required(true)
+            })
+            .create_option(|option| {
+                option
+                    .kind(CommandOptionType::Channel)
+                    .channel_types(&[ChannelType::Category])
+                    .name("category")
+                    .description("Categoria onde será criado os canais de ticket")
+                    .required(true)
+            })
+            .create_option(|option| {
+                option
+                    .kind(CommandOptionType::Channel)
+                    .channel_types(&[ChannelType::Text])
+                    .name("channel_log")
+                    .description("Canal onde sera registrado os tickets, logs!")
                     .required(true)
             })
             .create_option(|option| {
