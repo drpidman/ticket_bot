@@ -3,8 +3,7 @@ use serenity::{
     model::{
         prelude::{
             application_command::{ApplicationCommandInteraction, CommandDataOptionValue},
-            command::{Command, CommandOptionType},
-            ChannelCategory, ChannelId, ChannelType, Interaction, InteractionResponseType,
+            command::{Command, CommandOptionType}, ChannelId, ChannelType, Interaction, InteractionResponseType,
         },
         Permissions,
     },

@@ -3,7 +3,7 @@ use serenity::{
     http::Http,
     model::{
         prelude::{
-            application_command::ApplicationCommandInteraction, command::Command, ChannelId, Embed,
+            application_command::ApplicationCommandInteraction, command::Command, ChannelId,
             Interaction, InteractionResponseType, UserId,
         },
         Timestamp,
